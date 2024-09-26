@@ -2,18 +2,19 @@ import streamlit as st
 import mysql.connector
 import pandas as pd
 from datetime import datetime
+from PIL import Image
 
 # MySQL connection
 mydb = mysql.connector.connect(
     host="localhost",
     user="root",
-    password="",
-    database="redbus"  # Add your actual database name here
+    password="JabasR@2001",
+    database="Red_Bus"  # Add your actual database name here 
 )
 
 # Function to fetch route names based on search input, ignoring case sensitivity
 def fetch_route_names(connector, search_term):
-    query = f"SELECT DISTINCT Route_Name FROM Bus_details WHERE Route_Name LIKE '%{search_term}%' COLLATE utf8mb4_general_ci ORDER BY Route_Name"
+    query = f"SELECT DISTINCT Route_Name FROM RedBus_details WHERE Route_Name LIKE '%{search_term}%' COLLATE utf8mb4_general_ci ORDER BY Route_Name"
     route_names = pd.read_sql(query, con=connector)
     return route_names['Route_Name'].tolist()
 
@@ -26,7 +27,7 @@ def fetch_data(connector, route_name, price_sort_order, departing_time_start):
 
     # Adjust the query to filter by departing time
     query = f"""
-    SELECT * FROM Bus_details
+    SELECT * FROM RedBus_details
     WHERE Route_Name = %s 
     AND Departing_time >= %s
     ORDER BY Star_rating DESC, Price {price_sort_order_sql}
@@ -41,17 +42,25 @@ def filter_data(df, star_ratings, bus_types):
 
 # Main Streamlit app
 def main():
-    # Centered title with RedBus animations on both sides using markdown
-    st.markdown(
-        """
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <img src="https://www.redbus.in/images/redbus_logo.png" style="height: 50px;"/>
-            <h1 style='text-align: center; color: red;'>RedBus - Secure Online Bus Tickets Booking</h1>
-            <img src="https://www.redbus.in/images/redbus_logo.png" style="height: 50px;"/>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
+    # Load the image (ensure the path is correct)
+    logo_path = "redbus_logo.png"
+    logo = Image.open(logo_path)
+
+    # Create a layout with two columns
+    col1, col2 = st.columns([1, 5])  # Adjust the width ratios of the columns
+
+    with col1:
+     # Display the logo on the left side
+        st.image(logo, use_column_width=True)
+
+    with col2:
+     # Display the heading text on the right side
+     st.markdown("""
+         <h1 style='text-align: left; color: red;'>RedBus - Secure Online Bus Tickets Booking</h1>
+         """, unsafe_allow_html=True)
+
+    # Additional content can go below as needed
+
 
     try:
         # Create layout with columns
@@ -111,3 +120,6 @@ def main():
 
 if __name__ == '__main__':
     main()
+   
+
+    
